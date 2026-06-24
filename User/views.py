@@ -1,12 +1,17 @@
-from rest_framework import generics
-from rest_framework.generics import ListAPIView
-from .models import Contact, Subscriber, Category, Project
-from .serialazers import ContactSerializer, SubscriberSerializer, CategorySerializer, ProjectSerializer
+from rest_framework.generics import CreateAPIView,ListAPIView,RetrieveAPIView,DestroyAPIView
+from django.contrib.auth.models import User
+from .models import *
+from .serialazers import *
 from .utils import send_to_telegram
+from rest_framework.permissions import IsAdminUser, AllowAny
 
 
+class RegisterAPIView(CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
 
-class ContactCreateAPIView(generics.CreateAPIView):
+
+class ContactCreateAPIView(CreateAPIView):
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
 
@@ -15,17 +20,13 @@ class ContactCreateAPIView(generics.CreateAPIView):
         send_to_telegram(contact)
 
 
-
-class SubscribeAPIView(generics.CreateAPIView):
+class SubscribeAPIView(CreateAPIView):
     queryset = Subscriber.objects.all()
     serializer_class = SubscriberSerializer
-
-
 
 class CategoryListAPIView(ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-
 
 
 class ProjectListAPIView(ListAPIView):
@@ -37,6 +38,46 @@ class ProjectListAPIView(ListAPIView):
         if category:
             queryset = queryset.filter(category__name__iexact=category)
         return queryset
+
+
+class ProjectDetailAPIView(RetrieveAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+
+class CategoryDetailAPIView(RetrieveAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+
+
+
+#ISADMIN
+class ProjectCreateAPIView(CreateAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [IsAdminUser]
+
+#ISADMIN
+class CategoryCreateAPIView(CreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [IsAdminUser]
+
+
+
+#ISADMIN
+class ProjectDeleteAPIView(DestroyAPIView):
+    queryset = Project.objects.all()
+    permission_classes = [IsAdminUser]
+
+
+#ISADMIN
+class CategoryDeleteAPIView(DestroyAPIView):
+    queryset = Category.objects.all()
+    permission_classes = [IsAdminUser]
+
+
 
 
 
